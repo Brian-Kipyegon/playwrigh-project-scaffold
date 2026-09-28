@@ -1,0 +1,57 @@
+# Reusable workflow: runs one or both suites. Called by ci.yml and daily.yml.
+name: Run Playwright tests
+
+on:
+  workflow_call:
+    inputs:
+      suites:
+        description: 'JSON array of suites to run, e.g. ["api","ui"]'
+        type: string
+        default: '["api","ui"]'
+
+jobs:
+  test:
+    name: ${{ matrix.suite }} tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: ${{ fromJSON(inputs.suites) }}
+    env:
+      CI: true
+      # Repository secrets win when set; otherwise fall back to the public demo accounts
+      # (the same values documented in .env.example).
+      UI_USERNAME: ${{ secrets.UI_USERNAME || 'standard_user' }}
+      UI_PASSWORD: ${{ secrets.UI_PASSWORD || 'secret_sauce' }}
+      API_USERNAME: ${{ secrets.API_USERNAME || 'emilys' }}
+      API_PASSWORD: ${{ secrets.API_PASSWORD || 'emilyspass' }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - run: npm ci
+
+      - name: Static checks
+        run: |
+          npm run typecheck
+          npm run lint
+
+      - name: Install browsers
+        if: matrix.suite == 'ui'
+        run: npx playwright install --with-deps chromium
+
+      - name: Run ${{ matrix.suite }} tests
+        run: npm run test:${{ matrix.suite }}
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v5
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-${{ matrix.suite }}-${{ github.run_attempt }}
+          path: playwright-report/
+          retention-days: 14

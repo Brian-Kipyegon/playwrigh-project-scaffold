@@ -1,0 +1,38 @@
+{
+  "name": "playwright-test",
+  "version": "1.0.0",
+  "description": "Playwright framework with separately runnable API and UI suites",
+  "scripts": {
+    "test": "playwright test",
+    "test:api": "playwright test --project=api",
+    "test:ui": "playwright test --project=ui-chromium",
+    "test:ui:headed": "playwright test --project=ui-chromium --headed",
+    "test:ui:debug": "playwright test --project=ui-chromium --debug",
+    "test:smoke": "playwright test --grep @smoke",
+    "report": "playwright show-report",
+    "codegen": "playwright codegen https://www.saucedemo.com",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@faker-js/faker": "^10.6.0",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.3",
+    "cross-env": "^10.1.0",
+    "dotenv": "^18.0.4",
+    "eslint": "^10.11.0",
+    "eslint-plugin-playwright": "^2.12.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.1",
+    "zod": "^4.6.5"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  }
+}

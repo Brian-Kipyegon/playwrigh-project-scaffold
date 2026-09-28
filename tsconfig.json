@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "types": ["node"],
+    "paths": {
+      "@config/*": ["./src/config/*"],
+      "@pages/*": ["./src/pages/*"],
+      "@api/*": ["./src/api/*"],
+      "@fixtures/*": ["./src/fixtures/*"],
+      "@data/*": ["./src/data/*"],
+      "@utils/*": ["./src/utils/*"]
+    }
+  },
+  "include": ["playwright.config.ts", "src/**/*.ts", "tests/**/*.ts"]
+}
