@@ -47,12 +47,11 @@ Standard Playwright flags still work, e.g. `npm run test:ui -- --grep "Checkout"
 │   │   ├── BasePage.ts
 │   │   ├── components/HeaderComponent.ts
 │   │   ├── LoginPage.ts  InventoryPage.ts  CartPage.ts  CheckoutPage.ts
-│   │   └── index.ts             # Page object registry (auto-injected as fixtures)
+│   │   └── index.ts             # Barrel export
 │   ├── api/                     # API client layer
 │   │   ├── BaseApiClient.ts  AuthClient.ts  ProductsClient.ts
 │   │   └── schemas.ts           # zod response contracts
 │   ├── fixtures/
-│   │   ├── page-object.fixtures.ts  # Generic registry → fixtures builder
 │   │   ├── ui.fixtures.ts       # Injects page objects + auto hook
 │   │   └── api.fixtures.ts      # Injects API clients, auth context + auto hook
 │   └── data/                    # Test data: users, products, faker factories
@@ -88,23 +87,19 @@ When you select a project with `--project`, Playwright also runs its `dependenci
 
 Setup projects are preferred over doing everything in `globalSetup` because they show up in the HTML report, record traces, and can use fixtures.
 
-### Page objects are injected automatically
-Page objects are listed once in [src/pages/index.ts](src/pages/index.ts):
+### Page objects are injected as fixtures
+Each page object is a plain fixture in [src/fixtures/ui.fixtures.ts](src/fixtures/ui.fixtures.ts):
 
 ```ts
-export const pageObjects = {
-  loginPage: LoginPage,
-  inventoryPage: InventoryPage,
-  cartPage: CartPage,
-  checkoutPage: CheckoutPage,
-} as const;
+loginPage: async ({ page }, use) => {
+  await use(new LoginPage(page));
+},
 ```
-
-`createPageObjectFixtures()` in [src/fixtures/page-object.fixtures.ts](src/fixtures/page-object.fixtures.ts) turns each entry into a fixture:
 
 - **Lazy**: a page object is built only if the test asks for it.
 - **Isolated**: each test gets new instances bound to its own `page`.
-- **Typed**: fixture names and types come from the registry, so `{ cartPage }` is typed as `CartPage` with autocomplete.
+
+To add a page, create the class, export it from [src/pages/index.ts](src/pages/index.ts), and add its type and fixture to `ui.fixtures.ts`.
 
 Tests just ask for what they need:
 

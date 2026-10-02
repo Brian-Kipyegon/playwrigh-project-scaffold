@@ -1,15 +1,29 @@
 import { test as base, expect } from '@playwright/test';
-import { pageObjects } from '@pages/index';
-import { createPageObjectFixtures, type PageObjectFixtures } from './page-object.fixtures';
+import { CartPage, CheckoutPage, InventoryPage, LoginPage } from '@pages/index';
 
-type UiFixtures = PageObjectFixtures<typeof pageObjects> & {
+type UiFixtures = {
+  loginPage: LoginPage;
+  inventoryPage: InventoryPage;
+  cartPage: CartPage;
+  checkoutPage: CheckoutPage;
   /** Auto fixture: wraps every UI test like a global beforeEach/afterEach hook. */
   browserErrorCollector: void;
 };
 
 export const test = base.extend<UiFixtures>({
-  // Every page object in the registry is injected automatically.
-  ...createPageObjectFixtures(pageObjects),
+  // Each test gets fresh page objects bound to its own `page`.
+  loginPage: async ({ page }, use) => {
+    await use(new LoginPage(page));
+  },
+  inventoryPage: async ({ page }, use) => {
+    await use(new InventoryPage(page));
+  },
+  cartPage: async ({ page }, use) => {
+    await use(new CartPage(page));
+  },
+  checkoutPage: async ({ page }, use) => {
+    await use(new CheckoutPage(page));
+  },
 
   browserErrorCollector: [
     async ({ page }, use, testInfo) => {
